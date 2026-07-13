@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>stackcoach — on-device DSA & interview practice</title>
+  <meta name="description" content="A Socratic DSA and interview coach that runs entirely in your browser. No servers, no API keys, no data leaves your device." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark">&gt;_</span>
+      <span class="brand-name">stackcoach</span>
+    </div>
+
+    <div class="status" id="status">
+      <span class="status-dot" id="statusDot"></span>
+      <span id="statusText">not loaded · pick a model to begin</span>
+    </div>
+
+    <div class="model-picker">
+      <label for="modelSelect">model</label>
+      <select id="modelSelect">
+        <option value="Llama-3.2-1B-Instruct-q4f16_1-MLC">Llama 3.2 · 1B (fastest)</option>
+        <option value="Qwen2.5-1.5B-Instruct-q4f16_1-MLC">Qwen 2.5 · 1.5B</option>
+        <option value="Phi-3.5-mini-instruct-q4f16_1-MLC">Phi 3.5 mini · 3.8B (best quality)</option>
+      </select>
+      <button id="loadBtn" class="btn-load">load model</button>
+    </div>
+  </header>
+
+  <main class="layout">
+
+    <section class="workspace">
+      <div class="mode-toggle" role="tablist">
+        <button class="mode-btn active" data-mode="hint" role="tab">Socratic hints</button>
+        <button class="mode-btn" data-mode="review" role="tab">code review</button>
+        <button class="mode-btn" data-mode="interview" role="tab">mock interview</button>
+      </div>
+
+      <div class="thread" id="thread">
+        <div class="msg msg-coach">
+          <div class="msg-role">coach</div>
+          <div class="msg-body">
+            Paste a problem, your code, or say "start" for a mock interview question.
+            Everything you type stays on this device — nothing is sent anywhere.
+          </div>
+        </div>
+      </div>
+
+      <form class="composer" id="composer">
+        <textarea id="input" placeholder="Paste a DSA problem, your code, or ask a question…" rows="3"></textarea>
+        <button type="submit" id="pushBtn" class="btn-push" disabled>push ▸</button>
+      </form>
+    </section>
+
+    <aside class="stack-panel">
+      <div class="stack-header">
+        <span>call stack</span>
+        <span class="stack-count" id="stackCount">0 frames</span>
+      </div>
+      <div class="stack-list" id="stackList">
+        <div class="stack-empty">Your session history stacks here, newest on top. Click a frame to pop back to it.</div>
+      </div>
+    </aside>
+
+  </main>
+
+  <footer class="foot">
+    <span>Built for OSDHack 2026 · On-Device AI</span>
+    <span class="foot-sep">·</span>
+    <span id="reqCount">0 network requests made by the coach</span>
+  </footer>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
