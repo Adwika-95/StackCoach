@@ -71,6 +71,7 @@ Next: swap the keyword tagging for a locally-embedded classifier
 (Transformers.js), and let the coach open a session by referencing your
 actual weak spots ("you've hit graphs 4 times this week — want to start
 there?").
+<img width="1918" height="977" alt="image" src="https://github.com/user-attachments/assets/2a05836b-7681-4b18-931c-c95c8ab2689f" />
 
 ## License
 
