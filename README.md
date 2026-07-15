@@ -57,8 +57,20 @@ Recommended for weaker GPUs / laptops: start with **Llama 3.2 1B**.
 ## Status (mid-evaluation)
 
 Working end-to-end: model loading with progress, all three modes, streaming
-responses, call-stack session panel. Next: persisting the stack across reloads,
-and a "what to review next" summary generated locally from the session history.
+responses, and a call-stack session panel.
+
+**New:** a **weak spots** panel — each practice turn is tagged with a topic
+(arrays, DP, graphs, etc.) using a lightweight local keyword pass (no extra
+model call), saved to `localStorage`, and aggregated into an all-time
+weak-topics view. This is the part of the app that most needs to be on-device:
+it's a private record of exactly what you keep struggling with, and it only
+exists because nothing is ever sent off the device. A "clear local history"
+control is included for full user control over that data.
+
+Next: swap the keyword tagging for a locally-embedded classifier
+(Transformers.js), and let the coach open a session by referencing your
+actual weak spots ("you've hit graphs 4 times this week — want to start
+there?").
 
 ## License
 

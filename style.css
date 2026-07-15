@@ -279,6 +279,96 @@ body {
 
 .stack-count { color: var(--teal); text-transform: none; letter-spacing: 0; }
 
+.weak-spots {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 10px 10px 12px;
+  margin-bottom: 14px;
+  background: var(--panel);
+}
+
+.weak-spots-title {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--amber);
+  margin-bottom: 8px;
+}
+
+.weak-spots-hint {
+  color: var(--muted);
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 0.68rem;
+}
+
+.weak-spots-empty {
+  color: var(--muted);
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+
+.weak-spots-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.weak-spot-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+}
+
+.weak-spot-label {
+  width: 64px;
+  flex-shrink: 0;
+  color: var(--paper);
+  text-transform: capitalize;
+}
+
+.weak-spot-bar-track {
+  flex: 1;
+  height: 6px;
+  background: var(--panel-raised);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.weak-spot-bar-fill {
+  height: 100%;
+  background: var(--teal);
+  border-radius: 3px;
+}
+
+.weak-spot-count {
+  color: var(--muted);
+  width: 18px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.btn-clear {
+  background: transparent;
+  border: 1px solid var(--line);
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  padding: 5px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  width: 100%;
+}
+
+.btn-clear:hover {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
 .stack-list {
   flex: 1;
   overflow-y: auto;

@@ -24,6 +24,82 @@ let history = []; // chat messages sent to the model (excluding system prompt, w
 let frameCounter = 0;
 let networkRequests = 0; // stays 0 for anything the coach itself does after the model is cached
 
+/* ---------- local, on-device topic tracking ----------
+   No model call, no network: a lightweight keyword pass tags each session
+   with a topic, saved to localStorage so weak spots persist across reloads
+   without ever leaving this device. */
+
+const STORAGE_KEY = "stackcoach_history_v1";
+
+const TOPIC_KEYWORDS = {
+  arrays: ["array", "subarray", "two pointer", "sliding window"],
+  strings: ["string", "substring", "palindrome", "anagram"],
+  "linked list": ["linked list", "node", "pointer", "cycle"],
+  trees: ["tree", "binary tree", "bst", "trie", "ancestor"],
+  graphs: ["graph", "bfs", "dfs", "dijkstra", "topological", "island"],
+  dp: ["dynamic programming", " dp ", "memo", "knapsack", "subsequence"],
+  "heaps/stacks": ["heap", "priority queue", "stack", "queue", "monotonic"],
+  recursion: ["recursion", "backtrack", "permutation", "combination"],
+  "sorting/search": ["binary search", "sort", "merge sort", "quicksort"],
+  behavioral: ["tell me about", "weakness", "conflict", "teamwork", "leadership"],
+};
+
+function detectTopic(text) {
+  const lower = ` ${text.toLowerCase()} `;
+  for (const [topic, keywords] of Object.entries(TOPIC_KEYWORDS)) {
+    if (keywords.some((k) => lower.includes(k))) return topic;
+  }
+  return "general";
+}
+
+function loadHistory() {
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+  } catch {
+    return [];
+  }
+}
+
+function saveHistoryEntry(entry) {
+  const all = loadHistory();
+  all.push(entry);
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
+  } catch {
+    /* storage full or unavailable — fail silently, session still works */
+  }
+}
+
+function renderWeakSpots() {
+  const all = loadHistory();
+  const counts = {};
+  all.forEach((e) => {
+    counts[e.topic] = (counts[e.topic] || 0) + 1;
+  });
+
+  const entries = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 5);
+  const listEl = document.getElementById("weakSpotsList");
+  if (!listEl) return;
+
+  if (entries.length === 0) {
+    listEl.innerHTML = `<div class="weak-spots-empty">practice a bit — patterns you struggle with most will show up here</div>`;
+    return;
+  }
+
+  const max = entries[0][1];
+  listEl.innerHTML = entries
+    .map(([topic, count]) => {
+      const pct = Math.max(12, Math.round((count / max) * 100));
+      return `
+        <div class="weak-spot-item">
+          <span class="weak-spot-label">${topic}</span>
+          <span class="weak-spot-bar-track"><span class="weak-spot-bar-fill" style="width:${pct}%"></span></span>
+          <span class="weak-spot-count">${count}</span>
+        </div>`;
+    })
+    .join("");
+}
+
 const SYSTEM_PROMPTS = {
   hint: `You are a Socratic data-structures-and-algorithms coach. The student will paste a problem or describe what they're stuck on.
 Never give the full solution immediately. Instead: ask a guiding question, point at the relevant pattern or data structure, or give one small hint at a time.
@@ -77,16 +153,17 @@ loadBtn.addEventListener("click", async () => {
 
 /* ---------- stack panel ---------- */
 
-function pushFrame(label) {
+function pushFrame(label, modeOverride, topicOverride) {
   frameCounter += 1;
   const id = `frame-${frameCounter}`;
+  const mode = modeOverride || currentMode;
   frames.push({ id, label });
 
   const el = document.createElement("div");
   el.className = "stack-frame";
   el.id = `stack-${id}`;
   el.innerHTML = `
-    <div class="stack-frame-idx">#${frameCounter} · ${currentMode}</div>
+    <div class="stack-frame-idx">#${frameCounter} · ${mode}${topicOverride ? " · " + topicOverride : ""}</div>
     <div class="stack-frame-label"></div>
   `;
   el.querySelector(".stack-frame-label").textContent = label;
@@ -131,7 +208,11 @@ composer.addEventListener("submit", async (e) => {
   if (!text || !engine) return;
 
   const frameLabel = text.length > 48 ? text.slice(0, 48) + "…" : text;
-  const anchorId = pushFrame(frameLabel);
+  const topic = detectTopic(text);
+  const anchorId = pushFrame(frameLabel, currentMode, topic);
+
+  saveHistoryEntry({ label: frameLabel, mode: currentMode, topic, ts: Date.now() });
+  renderWeakSpots();
 
   appendMessage("user", text, anchorId);
   input.value = "";
@@ -171,3 +252,12 @@ composer.addEventListener("submit", async (e) => {
    networkRequests intentionally never increments after model download —
    every chat turn above runs through the local WebGPU engine only. */
 reqCount.textContent = `${networkRequests} network requests made by the coach after model load`;
+
+/* ---------- init weak spots + clear control ---------- */
+
+renderWeakSpots();
+
+document.getElementById("clearHistory")?.addEventListener("click", () => {
+  localStorage.removeItem(STORAGE_KEY);
+  renderWeakSpots();
+});
